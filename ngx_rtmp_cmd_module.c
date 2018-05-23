@@ -786,6 +786,79 @@ ngx_rtmp_cmd_set_buflen(ngx_rtmp_session_t *s, ngx_rtmp_set_buflen_t *v)
 }
 
 
+static ngx_int_t
+ngx_rtmp_cmd_sony_start_publish(ngx_rtmp_session_t *s, ngx_rtmp_header_t *h,
+        ngx_chain_t *in)
+{
+    static double               trans = 0;
+    ngx_rtmp_header_t           hOut;
+
+    ngx_log_debug(NGX_LOG_DEBUG_RTMP, s->connection->log, 0,
+                   "startPublish: called");
+
+    static ngx_rtmp_amf_elt_t  out_elts[] = {
+
+        { NGX_RTMP_AMF_STRING,
+          ngx_null_string,
+          "broadcastStarted", 0 },
+
+        { NGX_RTMP_AMF_NUMBER,
+          ngx_null_string,
+          &trans, 0 },
+
+        { NGX_RTMP_AMF_NULL,
+          ngx_null_string,
+          NULL, 0 },
+    };
+
+    ngx_memzero(&hOut, sizeof(hOut));
+
+    hOut.csid = NGX_RTMP_CSID_AMF_INI;
+    hOut.type = NGX_RTMP_MSG_AMF_CMD;
+
+    return ngx_rtmp_send_amf(s, &hOut, out_elts,
+                             sizeof(out_elts) / sizeof(out_elts[0])) == NGX_OK ?
+           NGX_DONE : NGX_ERROR;
+
+}
+
+
+static ngx_int_t
+ngx_rtmp_cmd_sony_call_module(ngx_rtmp_session_t *s, ngx_rtmp_header_t *h,
+        ngx_chain_t *in)
+{
+    static double               trans = 0;
+    ngx_rtmp_header_t           hOut;
+
+    ngx_log_debug(NGX_LOG_DEBUG_RTMP, s->connection->log, 0,
+                   "callModule: called");
+
+    static ngx_rtmp_amf_elt_t  out_elts[] = {
+
+        { NGX_RTMP_AMF_STRING,
+          ngx_null_string,
+          "recordStarted", 0 },
+
+        { NGX_RTMP_AMF_NUMBER,
+          ngx_null_string,
+          &trans, 0 },
+
+        { NGX_RTMP_AMF_NULL,
+          ngx_null_string,
+          NULL, 0 },
+    };
+
+    ngx_memzero(&hOut, sizeof(hOut));
+
+    hOut.csid = NGX_RTMP_CSID_AMF_INI;
+    hOut.type = NGX_RTMP_MSG_AMF_CMD;
+
+    return ngx_rtmp_send_amf(s, &hOut, out_elts,
+                             sizeof(out_elts) / sizeof(out_elts[0])) == NGX_OK ?
+           NGX_DONE : NGX_ERROR;
+}
+
+
 static ngx_rtmp_amf_handler_t ngx_rtmp_cmd_map[] = {
     { ngx_string("connect"),            ngx_rtmp_cmd_connect_init           },
     { ngx_string("createStream"),       ngx_rtmp_cmd_create_stream_init     },
@@ -797,6 +870,8 @@ static ngx_rtmp_amf_handler_t ngx_rtmp_cmd_map[] = {
     { ngx_string("seek"),               ngx_rtmp_cmd_seek_init              },
     { ngx_string("pause"),              ngx_rtmp_cmd_pause_init             },
     { ngx_string("pauseraw"),           ngx_rtmp_cmd_pause_init             },
+    { ngx_string("startPublish"),       ngx_rtmp_cmd_sony_start_publish     },
+    { ngx_string("callModule"),         ngx_rtmp_cmd_sony_call_module       },
 };
 
 
